@@ -7,13 +7,17 @@ function parseData() {
   const dataPreview = document.getElementById('dataPreview');
 
   let dataRows = dataInput.split('\n');
-  data = dataRows.map(row => row.split('\t').map(Number));
+  data = dataRows.map(row => {
+    const [label, ...values] = row.split('\t');
+    return { label, values: values.map(Number) };
+  });
 
   let html = '<table><tbody>';
   data.forEach(row => {
     html += '<tr>';
-    row.forEach(cell => {
-      html += `<td>${cell}</td>`;
+    html += `<td>${row.label}</td>`;
+    row.values.forEach(value => {
+      html += `<td>${value}</td>`;
     });
     html += '</tr>';
   });
@@ -28,9 +32,9 @@ function processData() {
   let html = '';
   for (let i = 0; i < groups.length; i++) {
     const sums = groups[i].reduce(
-      (acc, pair) => {
-        acc[0] += pair[0];
-        acc[1] += pair[1];
+      (acc, item) => {
+        acc[0] += item.values[0];
+        acc[1] += item.values[1];
         return acc;
       },
       [0, 0]
@@ -40,7 +44,7 @@ function processData() {
     html += `<p>Sums: ${sums.join(', ')}</p>`;
     html += '<ul>';
     for (let j = 0; j < groups[i].length; j++) {
-      html += `<li>${groups[i][j].join(', ')}</li>`;
+      html += `<li>${groups[i][j].label}: ${groups[i][j].values.join(', ')}</li>`;
     }
     html += '</ul>';
   }
@@ -74,9 +78,9 @@ function bruteForceSolution(data) {
   for (const partition of allPartitions) {
     const sums = partition.map(group =>
       group.reduce(
-        (acc, pair) => {
-          acc[0] += pair[0];
-          acc[1] += pair[1];
+        (acc, item) => {
+          acc[0] += item.values[0];
+          acc[1] += item.values[1];
           return acc;
         },
         [0, 0]
